@@ -1,8 +1,8 @@
 from mariadb import connect
 import dbcreds
 
-connection = None
-cursor = None
+# connection = None
+# cursor = None
 
 def connect_to_db():
     return connect(
