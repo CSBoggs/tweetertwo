@@ -39,15 +39,15 @@ def get_users():
 def create_user():
     try:
         data = request.get_json()
-        email = data["email"]
         username = data["username"]
-        bio = data["bio"]
-        birthdate = datetime.strptime(data["birthdate"], "%Y-%m-%d")
         password = data["password"]
-
+        email = data["email"]
+        birthdate = datetime.strptime(data["birthdate"], "%Y-%m-%d")
+        bio = data["bio"]
+        
         try:
             existing_user = db_users.get_user_email(email) or db_users.get_user_username(username)
-            if existing_user == True:
+            if existing_user:
                 return Response(
                     "Username and/or Email is in use", mimetype="text/plain", status=400
                 )
@@ -58,8 +58,24 @@ def create_user():
             "Incorrect data provided", mimetype="text/plain", status=400
         )
     else:
-        db_users.create_user(username, email, password, birthdate, bio)
-        user = db_users.get_user_username(username)
+        db_users.create_user(username, password, email, birthdate, bio)
+        created_user = db_users.get_user_username(username)
         resp = Response(
-            json.dumps(user, default=str), mimetype="application/json", status=201)
-        return resp        
+            json.dumps(created_user, default=str), mimetype="application/json", status=201)
+        return resp
+
+@users.route("/api/users", methods=["PATCH"])
+def edit_user(user_id):
+    data = request.get_json()
+    params = {"username", "email", "birthdate", "bio"}
+    edit_data = [0] in params, data.items()
+
+    if edit_data:
+        db_users.edit_user(user_id, data)
+    else:
+        return Response(
+            "Incorrect data provided", mimetype="text/plain", status=400
+        )
+    resp = Response(
+        json.dumps(edit_data, default=str), mimetype="application/json", status=201)
+    return resp

@@ -1,5 +1,5 @@
 import mariadb
-from .db_functions import connect_to_db
+from .db_functions import connect_to_db, fetch
 
 def get_user_id(user_id):
     try:
@@ -85,14 +85,52 @@ def get_users_all():
         cursor.close()
         conn.close()
 
-def create_user(username, email, password, birthdate, bio):
+def create_user(username, password, email, birthdate, bio):
     try:
         conn = connect_to_db()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, email, password, birthdate, bio) VALUES (?, ?, ?, ?, ?)", [username, email, password, birthdate, bio])
+        cursor.execute("INSERT INTO users (username, password, email, birthdate, bio) VALUES (?, ?, ?, ?, ?)", [username, password, email, birthdate, bio])
         conn.commit()
-    except Exception as e:
-        print(e)
+    except mariadb.OperationalError:
+        print("something is wrong with the connection")
     else:
         cursor.close()
         conn.close()
+
+def edit_user(user_id, data):
+    if data.fetch("username"):
+        try:
+            conn = connect_to_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET username = (?) WHERE id = (?)", [data["username"], user_id])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+    if data.fetch("email"):
+        try:
+            conn = connect_to_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET email = (?) WHERE id = (?)", [data["email"], user_id])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+    if data.fetch("birthdate"):
+        try:
+            conn = connect_to_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET birthdate = (?) WHERE id = (?)", [data["birthdate"], user_id])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+    if data.fetch("bio"):
+        try:
+            conn = connect_to_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET bio = (?) WHERE id = (?)", [data["bio"], user_id])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
