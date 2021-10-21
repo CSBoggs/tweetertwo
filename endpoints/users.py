@@ -1,4 +1,5 @@
-from flask import Flask, request, Response, Blueprint
+from flask import Flask, request, make_response, Response, Blueprint
+from flask.json import jsonify
 from database import db_users
 import json
 from datetime import datetime
@@ -17,23 +18,15 @@ def get_users():
     if userId:
         user = db_users.get_user_id(userId)
         if user:
-            resp = Response(
-                json.dumps(user, default=str), mimetype="application/json", status=201)
-            return resp
+            return make_response(jsonify(user), 200)
         else:
-            return Response(
-                "User not found", mimetype="text/plain", status=401
-            )
+            return make_response(jsonify({"message": "User was not found with that user ID"}), 400)
     else:
         all = db_users.get_users_all()
         if not all:
-            return Response(
-                "No users found", mimetype="text/plain", status=400
-            )
+            return make_response(jsonify({"message": "No users found"}), 400)
         else:
-            resp = Response(
-                json.dumps(all, default=str), mimetype="application/json", status=200)
-            return resp
+            return make_response(jsonify(all), 200)
 
 @users.route("/api/users", methods=["POST"])
 def create_user():
@@ -48,21 +41,15 @@ def create_user():
         try:
             existing_user = db_users.get_user_email(email) or db_users.get_user_username(username)
             if existing_user:
-                return Response(
-                    "Username and/or Email is in use", mimetype="text/plain", status=400
-                )
+                return make_response(jsonify({"message": "Incorrect data provided"}), 400)
         except:
             pass
     except:
-        return Response(
-            "Incorrect data provided", mimetype="text/plain", status=400
-        )
+        return make_response(jsonify({"message": "Incorrect data provided"}), 400)
     else:
         db_users.create_user(username, password, email, birthdate, bio)
         created_user = db_users.get_user_username(username)
-        resp = Response(
-            json.dumps(created_user, default=str), mimetype="application/json", status=201)
-        return resp
+        return make_response(jsonify(created_user), 201)
 
 @users.route("/api/users", methods=["PATCH"])
 def edit_user(user_id):
@@ -73,9 +60,5 @@ def edit_user(user_id):
     if edit_data:
         db_users.edit_user(user_id, data)
     else:
-        return Response(
-            "Incorrect data provided", mimetype="text/plain", status=400
-        )
-    resp = Response(
-        json.dumps(edit_data, default=str), mimetype="application/json", status=201)
-    return resp
+        return make_response(jsonify({"message": "Incorrect data provided"}), 400)
+    return make_response(jsonify({"message": "Updated user information"}), 201)
