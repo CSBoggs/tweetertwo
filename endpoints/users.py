@@ -12,8 +12,8 @@ def get_users():
 
     try: 
         userId = request.args['userId']
-    except Exception as e:
-        print(e)
+    except Exception as err:
+        print(err)
     
     if userId:
         user = db_users.get_user_id(userId)

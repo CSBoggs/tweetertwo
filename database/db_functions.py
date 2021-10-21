@@ -33,3 +33,15 @@ def fetch(command, arguments =[]):
         cursor.close()
         conn.close()
         return result
+
+def insert(command, arguments =[]):
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute(command, arguments)
+        conn.commit()
+    except mariadb.OperationalError:
+        print("something is wrong with the connection")
+    finally:
+        cursor.close()
+        conn.close()
