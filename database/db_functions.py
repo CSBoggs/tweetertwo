@@ -1,9 +1,10 @@
 import mariadb
 from mariadb import connect
+from flask import jsonify
 import dbcreds
 
-# connection = None
-# cursor = None
+connection = None
+cursor = None
 
 def connect_to_db():
     return connect(
@@ -19,10 +20,8 @@ def fetch(command, arguments =[]):
         conn = connect_to_db()
         cursor = conn.cursor()
         cursor.execute(command, arguments)
-        
         row_headers = [x[0] for x in cursor.description]
         row_values = cursor.fetchall()
-
         json_data=[]
         for result in row_values:
             json_data.append(dict(zip(row_headers, result)))
