@@ -21,3 +21,15 @@ def get_tweets():
             return make_response(jsonify({"message": "No tweets found"}), 401)
         else:
             return make_response(jsonify(all), 200)
+
+@tweets.route("/api/tweets", methods=["POST"])
+def post_tweet(user_id):
+    try: 
+        data = request.get_json()
+        content = data["content"]
+        new_tweet = db_tweets.post_tweet(user_id, content)
+        fresh_tweet = db_tweets.get_tweets_tweet_id(new_tweet)
+        return make_response(jsonify(fresh_tweet), 201)
+    except Exception as err:
+        print(err)
+        return Response ("Service unavailable", mimetype="text/plain", status=503)
