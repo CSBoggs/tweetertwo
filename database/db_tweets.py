@@ -1,6 +1,7 @@
 import mariadb
 from .db_functions import fetch, connect_to_db
-import datetime
+from database import db_user_sessions
+from datetime import datetime
 
 def get_tweets_all():
     tweets = fetch("SELECT userTweets.id AS tweetId, user.id as userId, content, created_at, username FROM (SELECT id, username FROM users) AS user JOIN (SELECT * FROM tweets) AS userTweets ON userTweets.users_id = user.id")
@@ -29,3 +30,18 @@ def post_tweet(user_id, content):
         cursor.close()
         conn.close()
     return tweet_id
+
+def delete_tweet(user_id, tweet_id):
+    deleted_tweet = None
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM tweets WHERE id = (?)", [tweet_id, user_id])
+        deleted_tweet = cursor.rowcount
+        conn.commit()
+    except mariadb.OperationalError:
+        print("something is wrong with the connection")
+    finally:
+        cursor.close()
+        conn.close()
+    return deleted_tweet
