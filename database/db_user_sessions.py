@@ -5,3 +5,11 @@ def login_user(user_id):
 
 def logout_user(user_id):
     insert("DELETE FROM user_session WHERE users_id = (?)", [user_id])
+
+def fetch_login_token(user_id):
+    result = fetch("SELECT login_token FROM user_session WHERE users_id = (?)", [user_id])
+    token = result[0]["login_token"]
+    return token
+
+def update_login_token(login_token, user_id):
+    insert("UPDATE user_session SET login_token = (?) WHERE users_id = (?)", [login_token, user_id])

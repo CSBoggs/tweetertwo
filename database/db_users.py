@@ -138,6 +138,5 @@ def edit_user(user_id, data):
 def get_user_password(user_id):
     result = fetch("SELECT password FROM users WHERE id = (?)", [user_id])
     password = result[0]["password"]
-    print(password)
     return password
 
